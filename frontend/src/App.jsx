@@ -7,8 +7,14 @@ import DashboardPage from "./features/dashboard/DashboardPage";
 import MercadosPage from "./features/mercados/MercadosPage";
 import MercadoDetailPage from "./features/mercados/MercadoDetailPage";
 import ComerciantesPage from "./features/comerciantes/ComerciantesPage";
+<<<<<<< HEAD
 import PagamentosPage from "./features/pagamentos/PagamentosPage";
 import RegistarPagamentoPage from "./features/pagamentos/RegistarPagamentoPage";
+=======
+import NovoComerciantePage from "./features/comerciantes/NovoComerciantePage";
+import FiscaisPage from "./features/fiscais/FiscaisPage";
+
+>>>>>>> refs/remotes/origin/main
 // Placeholders temporários — cada um será substituído na sua tela
 function Placeholder({ title }) {
   return (
@@ -35,12 +41,17 @@ export default function App() {
               <Route path="/mercados" element={<MercadosPage />} />
               <Route path="/mercados/:id" element={<MercadoDetailPage />} />
               <Route path="/comerciantes" element={<ComerciantesPage />} />
-              <Route path="/comerciantes/novo" element={<Placeholder title="Novo comerciante" />} />
+              <Route path="/comerciantes/novo" element={<NovoComerciantePage />} />
               <Route path="/taxas" element={<Placeholder title="Taxas" />} />
               <Route path="/senhas" element={<Placeholder title="Senhas" />} />
+<<<<<<< HEAD
               <Route path="/pagamentos" element={<PagamentosPage />} />
               <Route path="/pagamentos/novo" element={<RegistarPagamentoPage />} />
               <Route path="/fiscais" element={<Placeholder title="Fiscais" />} />
+=======
+              <Route path="/pagamentos" element={<Placeholder title="Pagamentos" />} />
+              <Route path="/fiscais" element={<FiscaisPage />} />
+>>>>>>> refs/remotes/origin/main
               <Route path="/relatorios" element={<Placeholder title="Relatórios" />} />
               <Route path="/auditoria" element={<Placeholder title="Auditoria" />} />
               <Route path="/configuracoes" element={<Placeholder title="Configurações" />} />

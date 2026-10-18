@@ -276,6 +276,7 @@ export const COMERCIANTES = [
 
 export const TIPOS_PRODUTO = ["Peixe", "Hortaliças", "Roupa", "Carne", "Cereais"];
 
+<<<<<<< HEAD
 // ============================================================
 // PAGAMENTOS
 // ============================================================
@@ -419,3 +420,96 @@ export const PAGAMENTOS = [
 // Opções de método para o formulário "Registar pagamento"
 // (diferente dos agregados do dashboard — sem conflito de nomes)
 export const METODOS_PAGAMENTO_OPCOES = ["Numerário", "M-Pesa", "e-Mola", "Mkesh"];
+=======
+// Taxas de referência por tipo de produto (valor / periodicidade)
+export const TAXAS_POR_PRODUTO = {
+  Peixe: { valor: 50, periodicidade: "Diária" },
+  Hortaliças: { valor: 40, periodicidade: "Diária" },
+  Roupa: { valor: 350, periodicidade: "Semanal" },
+  Carne: { valor: 80, periodicidade: "Diária" },
+  Cereais: { valor: 1200, periodicidade: "Mensal" },
+};
+
+// Bancas livres por mercado (mock — para o select de banca)
+export const BANCAS_POR_MERCADO = {
+  "Mercado do Maquinino": ["MQ-004", "MQ-006", "MQ-010", "MQ-013"],
+  "Mercado do Goto": ["GT-005", "GT-009", "GT-018"],
+  "Mercado do Chota": ["CH-012", "CH-017"],
+  "Mercado da Manga": ["MG-004", "MG-007"],
+  "Mercado do Esturro": ["ES-002"],
+  "Mercado de Inhamizua": ["IN-001", "IN-003"],
+};
+
+export const FISCAIS = [
+  {
+    id: 1,
+    nome: "Armando Tembe",
+    telefone: "+258 84 321 4567",
+    email: "armando.tembe@beira.gov.mz",
+    mercado: "Mercado do Maquinino",
+    senhasValidadas: 128,
+    totalCobrado: 452800,
+    estado: "Activo",
+  },
+  {
+    id: 2,
+    nome: "Elisa Muianga",
+    telefone: "+258 85 456 7890",
+    email: "elisa.muianga@beira.gov.mz",
+    mercado: "Mercado do Goto",
+    senhasValidadas: 104,
+    totalCobrado: 389600,
+    estado: "Activo",
+  },
+  {
+    id: 3,
+    nome: "Carlos Nhaca",
+    telefone: "+258 86 234 5678",
+    email: "carlos.nhaca@beira.gov.mz",
+    mercado: "Mercado do Chota",
+    senhasValidadas: 96,
+    totalCobrado: 342150,
+    estado: "Activo",
+  },
+  {
+    id: 4,
+    nome: "Fátima Sitoe",
+    telefone: "+258 87 111 2233",
+    email: "fatima.sitoe@beira.gov.mz",
+    mercado: "Mercado da Manga",
+    senhasValidadas: 87,
+    totalCobrado: 298400,
+    estado: "Activo",
+  },
+  {
+    id: 5,
+    nome: "Rui Mabjaia",
+    telefone: "+258 84 445 6677",
+    email: "rui.mabjaia@beira.gov.mz",
+    mercado: "Mercado do Esturro",
+    senhasValidadas: 72,
+    totalCobrado: 215900,
+    estado: "Inactivo",
+  },
+  {
+    id: 6,
+    nome: "Sandra Mabunda",
+    telefone: "+258 85 998 7766",
+    email: "sandra.mabunda@beira.gov.mz",
+    mercado: "Mercado de Inhamizua",
+    senhasValidadas: 61,
+    totalCobrado: 178300,
+    estado: "Activo",
+  },
+  {
+    id: 7,
+    nome: "Domingos Cossa",
+    telefone: "+258 86 667 8899",
+    email: "domingos.cossa@beira.gov.mz",
+    mercado: "Mercado do Maquinino",
+    senhasValidadas: 54,
+    totalCobrado: 162500,
+    estado: "Activo",
+  },
+];
+>>>>>>> refs/remotes/origin/main
