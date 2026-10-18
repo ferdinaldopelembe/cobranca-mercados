@@ -1,0 +1,3 @@
+Credencias de teste:
+    email: admin@beira.gov.mz
+    senha: admin123
