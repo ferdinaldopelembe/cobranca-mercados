@@ -1,3 +1,6 @@
+// ============================================================
+// MERCADOS
+// ============================================================
 export const MERCADOS = [
   { id: 1, nome: "Mercado do Maquinino" },
   { id: 2, nome: "Mercado do Goto" },
@@ -7,6 +10,9 @@ export const MERCADOS = [
   { id: 6, nome: "Mercado de Inhamizua" },
 ];
 
+// ============================================================
+// DASHBOARD
+// ============================================================
 export const KPI_DADOS = {
   hoje: { valor: 287450, variacao: 12.4 },
   mes: { valor: 3824520, variacao: 8.7 },
@@ -14,7 +20,6 @@ export const KPI_DADOS = {
   bloqueados: { valor: 23, variacao: 2.1 },
 };
 
-// 30 pontos para gráfico de linha
 export const ARRECADACAO_DIARIA = Array.from({ length: 30 }, (_, i) => {
   const base = 250000 + Math.sin(i / 2.5) * 60000;
   const noise = ((i * 37) % 40000) - 20000;
@@ -30,38 +35,14 @@ export const ARRECADACAO_POR_MERCADO = [
 ];
 
 export const DESEMPENHO_FISCAIS = [
-  {
-    fiscal: "Armando Tembe",
-    mercado: "Maquinino",
-    senhas: 128,
-    total: 452800,
-  },
-  {
-    fiscal: "Elisa Muianga",
-    mercado: "Goto",
-    senhas: 104,
-    total: 389600,
-  },
-  {
-    fiscal: "Carlos Nhaca",
-    mercado: "Chota",
-    senhas: 96,
-    total: 342150,
-  },
-  {
-    fiscal: "Fátima Sitoe",
-    mercado: "Manga",
-    senhas: 87,
-    total: 298400,
-  },
-  {
-    fiscal: "Rui Mabjaia",
-    mercado: "Esturro",
-    senhas: 72,
-    total: 215900,
-  },
+  { fiscal: "Armando Tembe", mercado: "Maquinino", senhas: 128, total: 452800 },
+  { fiscal: "Elisa Muianga", mercado: "Goto", senhas: 104, total: 389600 },
+  { fiscal: "Carlos Nhaca", mercado: "Chota", senhas: 96, total: 342150 },
+  { fiscal: "Fátima Sitoe", mercado: "Manga", senhas: 87, total: 298400 },
+  { fiscal: "Rui Mabjaia", mercado: "Esturro", senhas: 72, total: 215900 },
 ];
 
+// Métodos agregados (dashboard) — array de objectos
 export const METODOS_PAGAMENTO = [
   { metodo: "M-Pesa", valor: 1842300 },
   { metodo: "e-Mola", valor: 982400 },
@@ -108,6 +89,9 @@ export const PAGAMENTOS_NUMERARIO_PENDENTES = [
   },
 ];
 
+// ============================================================
+// MERCADOS (detalhados)
+// ============================================================
 export const MERCADOS_DETALHADOS = [
   {
     id: 1,
@@ -174,23 +158,29 @@ export const GESTORES = [
   "Domingos Cossa",
 ];
 
+// ============================================================
+// BANCAS
+// ============================================================
 export const BANCAS_MAQUININO = [
-  { id: 1,  codigo: "MQ-001", tipo: "Peixe",      comerciante: "João Chirindza",     estado: "Ocupada" },
-  { id: 2,  codigo: "MQ-002", tipo: "Peixe",      comerciante: "Ana Mabunda",         estado: "Ocupada" },
-  { id: 3,  codigo: "MQ-003", tipo: "Hortaliças", comerciante: "Mateus Cossa",        estado: "Ocupada" },
-  { id: 4,  codigo: "MQ-004", tipo: "Hortaliças", comerciante: null,                  estado: "Livre"   },
-  { id: 5,  codigo: "MQ-005", tipo: "Roupa",      comerciante: "Salomé Macuácua",     estado: "Ocupada" },
-  { id: 6,  codigo: "MQ-006", tipo: "Roupa",      comerciante: null,                  estado: "Livre"   },
-  { id: 7,  codigo: "MQ-007", tipo: "Carne",      comerciante: "Rui Mabjaia",         estado: "Ocupada" },
-  { id: 8,  codigo: "MQ-008", tipo: "Carne",      comerciante: "Fátima Sitoe",        estado: "Ocupada" },
-  { id: 9,  codigo: "MQ-009", tipo: "Cereais",    comerciante: "Carlos Nhaca",        estado: "Ocupada" },
-  { id: 10, codigo: "MQ-010", tipo: "Cereais",    comerciante: null,                  estado: "Livre"   },
-  { id: 11, codigo: "MQ-011", tipo: "Peixe",      comerciante: "Elisa Muianga",       estado: "Ocupada" },
-  { id: 12, codigo: "MQ-012", tipo: "Hortaliças", comerciante: "Armando Tembe",       estado: "Ocupada" },
+  { id: 1,  codigo: "MQ-001", tipo: "Peixe",      comerciante: "João Chirindza", estado: "Ocupada" },
+  { id: 2,  codigo: "MQ-002", tipo: "Peixe",      comerciante: "Ana Mabunda",     estado: "Ocupada" },
+  { id: 3,  codigo: "MQ-003", tipo: "Hortaliças", comerciante: "Mateus Cossa",    estado: "Ocupada" },
+  { id: 4,  codigo: "MQ-004", tipo: "Hortaliças", comerciante: null,              estado: "Livre"   },
+  { id: 5,  codigo: "MQ-005", tipo: "Roupa",      comerciante: "Salomé Macuácua", estado: "Ocupada" },
+  { id: 6,  codigo: "MQ-006", tipo: "Roupa",      comerciante: null,              estado: "Livre"   },
+  { id: 7,  codigo: "MQ-007", tipo: "Carne",      comerciante: "Rui Mabjaia",     estado: "Ocupada" },
+  { id: 8,  codigo: "MQ-008", tipo: "Carne",      comerciante: "Fátima Sitoe",    estado: "Ocupada" },
+  { id: 9,  codigo: "MQ-009", tipo: "Cereais",    comerciante: "Carlos Nhaca",    estado: "Ocupada" },
+  { id: 10, codigo: "MQ-010", tipo: "Cereais",    comerciante: null,              estado: "Livre"   },
+  { id: 11, codigo: "MQ-011", tipo: "Peixe",      comerciante: "Elisa Muianga",   estado: "Ocupada" },
+  { id: 12, codigo: "MQ-012", tipo: "Hortaliças", comerciante: "Armando Tembe",   estado: "Ocupada" },
 ];
 
 export const TIPOS_ACTIVIDADE = ["Peixe", "Hortaliças", "Roupa", "Carne", "Cereais"];
 
+// ============================================================
+// COMERCIANTES
+// ============================================================
 export const COMERCIANTES = [
   {
     id: 1,
@@ -285,3 +275,147 @@ export const COMERCIANTES = [
 ];
 
 export const TIPOS_PRODUTO = ["Peixe", "Hortaliças", "Roupa", "Carne", "Cereais"];
+
+// ============================================================
+// PAGAMENTOS
+// ============================================================
+export const PAGAMENTOS = [
+  {
+    id: 1,
+    senha: "PAG-2025-000341",
+    comerciante: "João Chirindza",
+    mercado: "Mercado do Maquinino",
+    banca: "MQ-001",
+    taxa: "Diária",
+    periodo: "18/10/2025",
+    valor: 50.0,
+    metodo: "Numerário",
+    data: "18/10/2025 08:12",
+    estado: "Pago",
+  },
+  {
+    id: 2,
+    senha: "PAG-2025-000342",
+    comerciante: "Mateus Cossa",
+    mercado: "Mercado do Goto",
+    banca: "GT-014",
+    taxa: "Diária",
+    periodo: "18/10/2025",
+    valor: 40.0,
+    metodo: "M-Pesa",
+    data: "18/10/2025 08:35",
+    estado: "Pago",
+  },
+  {
+    id: 3,
+    senha: "PAG-2025-000343",
+    comerciante: "Rui Mabjaia",
+    mercado: "Mercado do Chota",
+    banca: "CH-008",
+    taxa: "Diária",
+    periodo: "18/10/2025",
+    valor: 80.0,
+    metodo: "e-Mola",
+    data: "18/10/2025 09:02",
+    estado: "Pago",
+  },
+  {
+    id: 4,
+    senha: "PAG-2025-000344",
+    comerciante: "Ana Mabunda",
+    mercado: "Mercado do Maquinino",
+    banca: "MQ-002",
+    taxa: "Diária",
+    periodo: "18/10/2025",
+    valor: 50.0,
+    metodo: "—",
+    data: "—",
+    estado: "Em atraso",
+    motivo: "Senha da diária de hoje não liquidada",
+  },
+  {
+    id: 5,
+    senha: "PAG-2025-000345",
+    comerciante: "Salomé Macuácua",
+    mercado: "Mercado do Maquinino",
+    banca: "MQ-005",
+    taxa: "Semanal",
+    periodo: "13/10 – 18/10/2025",
+    valor: 350.0,
+    metodo: "—",
+    data: "—",
+    estado: "Pendente",
+  },
+  {
+    id: 6,
+    senha: "PAG-2025-000346",
+    comerciante: "Carlos Nhaca",
+    mercado: "Mercado da Manga",
+    banca: "MG-003",
+    taxa: "Mensal",
+    periodo: "Outubro 2025",
+    valor: 1200.0,
+    metodo: "M-Pesa",
+    data: "03/10/2025 10:21",
+    estado: "Pago",
+  },
+  {
+    id: 7,
+    senha: "PAG-2025-000347",
+    comerciante: "Fátima Sitoe",
+    mercado: "Mercado do Goto",
+    banca: "GT-021",
+    taxa: "Mensal",
+    periodo: "Outubro 2025",
+    valor: 1200.0,
+    metodo: "—",
+    data: "—",
+    estado: "Em atraso",
+    motivo: "Pagamento mensal não liquidado há 3 meses",
+  },
+  {
+    id: 8,
+    senha: "PAG-2025-000348",
+    comerciante: "Elisa Muianga",
+    mercado: "Mercado do Goto",
+    banca: "GT-011",
+    taxa: "Diária",
+    periodo: "18/10/2025",
+    valor: 40.0,
+    metodo: "—",
+    data: "—",
+    estado: "Em atraso",
+    motivo: "Senha da diária de hoje não liquidada",
+  },
+  {
+    id: 9,
+    senha: "PAG-2025-000349",
+    comerciante: "João Chirindza",
+    mercado: "Mercado do Maquinino",
+    banca: "MQ-001",
+    taxa: "Diária",
+    periodo: "17/10/2025",
+    valor: 50.0,
+    metodo: "Numerário",
+    data: "17/10/2025 08:00",
+    estado: "Anulado",
+    motivo: "Senha duplicada — reembolso efectuado",
+  },
+  {
+    id: 10,
+    senha: "PAG-2025-000350",
+    comerciante: "Rui Mabjaia",
+    mercado: "Mercado do Chota",
+    banca: "CH-008",
+    taxa: "Diária",
+    periodo: "17/10/2025",
+    valor: 80.0,
+    metodo: "Numerário",
+    data: "17/10/2025 08:45",
+    estado: "Pago",
+  },
+];
+
+// Opções de método para o formulário "Registar pagamento"
+// (diferente dos agregados do dashboard — sem conflito de nomes)
+export const METODOS_PAGAMENTO_OPCOES = ["Numerário", "M-Pesa", "e-Mola", "Mkesh"];

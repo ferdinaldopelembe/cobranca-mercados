@@ -7,7 +7,8 @@ import DashboardPage from "./features/dashboard/DashboardPage";
 import MercadosPage from "./features/mercados/MercadosPage";
 import MercadoDetailPage from "./features/mercados/MercadoDetailPage";
 import ComerciantesPage from "./features/comerciantes/ComerciantesPage";
-
+import PagamentosPage from "./features/pagamentos/PagamentosPage";
+import RegistarPagamentoPage from "./features/pagamentos/RegistarPagamentoPage";
 // Placeholders temporários — cada um será substituído na sua tela
 function Placeholder({ title }) {
   return (
@@ -37,7 +38,8 @@ export default function App() {
               <Route path="/comerciantes/novo" element={<Placeholder title="Novo comerciante" />} />
               <Route path="/taxas" element={<Placeholder title="Taxas" />} />
               <Route path="/senhas" element={<Placeholder title="Senhas" />} />
-              <Route path="/pagamentos" element={<Placeholder title="Pagamentos" />} />
+              <Route path="/pagamentos" element={<PagamentosPage />} />
+              <Route path="/pagamentos/novo" element={<RegistarPagamentoPage />} />
               <Route path="/fiscais" element={<Placeholder title="Fiscais" />} />
               <Route path="/relatorios" element={<Placeholder title="Relatórios" />} />
               <Route path="/auditoria" element={<Placeholder title="Auditoria" />} />
