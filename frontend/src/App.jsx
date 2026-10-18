@@ -4,6 +4,9 @@ import { ProtectedRoute } from "./routes/router";
 import AppLayout from "./components/layout/AppLayout";
 import LoginPage from "./features/auth/LoginPage";
 import DashboardPage from "./features/dashboard/DashboardPage";
+import MercadosPage from "./features/mercados/MercadosPage";
+import MercadoDetailPage from "./features/mercados/MercadoDetailPage";
+import ComerciantesPage from "./features/comerciantes/ComerciantesPage";
 
 // Placeholders temporários — cada um será substituído na sua tela
 function Placeholder({ title }) {
@@ -28,9 +31,9 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/mercados" element={<Placeholder title="Mercados" />} />
-              <Route path="/mercados/:id" element={<Placeholder title="Detalhe do mercado" />} />
-              <Route path="/comerciantes" element={<Placeholder title="Comerciantes" />} />
+              <Route path="/mercados" element={<MercadosPage />} />
+              <Route path="/mercados/:id" element={<MercadoDetailPage />} />
+              <Route path="/comerciantes" element={<ComerciantesPage />} />
               <Route path="/comerciantes/novo" element={<Placeholder title="Novo comerciante" />} />
               <Route path="/taxas" element={<Placeholder title="Taxas" />} />
               <Route path="/senhas" element={<Placeholder title="Senhas" />} />
