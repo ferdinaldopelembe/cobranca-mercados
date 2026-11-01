@@ -2,7 +2,9 @@ package mz.beira.cobranca;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.file.Path;
 import mz.beira.cobranca.models.Account;
 import mz.beira.cobranca.repositories.AccountRepository;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,19 @@ class CobrancaApplicationTests {
 
 	@Test
 	void contextLoads() {
+	}
+
+	@Test
+	void databaseDirectoryIsStableWhenStartedFromProjectRootOrBackend() {
+		Path currentDirectory = Path.of("").toAbsolutePath().normalize();
+		Path projectRoot = currentDirectory.getFileName().toString().equals("backend")
+			? currentDirectory.getParent()
+			: currentDirectory;
+
+		assertEquals(
+			CobrancaApplication.databaseDirectoryFor(projectRoot),
+			CobrancaApplication.databaseDirectoryFor(projectRoot.resolve("backend"))
+		);
 	}
 
 	@Test
