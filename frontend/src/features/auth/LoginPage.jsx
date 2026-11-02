@@ -7,8 +7,8 @@ import Button from "../../components/ui/Button";
 
 const highlights = [
   { icon: QrCode, text: "Recibos de pagamento imprimíveis" },
-  { icon: Wallet, text: "Pagamentos em numerário" },
-  { icon: TrendingUp, text: "Relatórios de arrecadação em tempo real" },
+  { icon: Wallet, text: "Consulte taxas e pagamentos" },
+  { icon: TrendingUp, text: "Acompanhe senhas e recibos" },
 ];
 
 export default function LoginPage() {
@@ -29,7 +29,7 @@ export default function LoginPage() {
     try {
       const loggedInUser = await login({ identifier, password });
       navigate(
-        from || (loggedInUser.role === "Administrador" ? "/dashboard" : "/pagamentos"),
+        from || (["Administrador", "Comerciante"].includes(loggedInUser.role) ? "/dashboard" : "/pagamentos"),
         { replace: true }
       );
     } catch (err) {

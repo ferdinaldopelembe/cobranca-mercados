@@ -74,7 +74,9 @@ export default function ComerciantesPage() {
     try {
       const updated = await apiPatch(`/admin/merchants/${merchant.id}/status`, {
         status,
-        reason: status === "Bloqueado" ? "Bloqueio efectuado pela administração" : null,
+        reason: status === "Bloqueado"
+          ? "Bloqueio efectuado pela administração"
+          : "Regularização autorizada pela administração",
       });
       setMerchants((current) => current.map((item) =>
         item.id === updated.id ? mapMerchant(updated) : item

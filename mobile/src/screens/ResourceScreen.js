@@ -103,6 +103,29 @@ const resources = {
       `Estado: ${item.status}${item.statusReason ? ` · ${item.statusReason}` : ""}`,
     ],
   },
+  users: {
+    title: "Utilizadores de equipa",
+    icon: "account-key-outline",
+    endpoint: "/admin/users",
+    fields: [
+      { key: "name", label: "Nome completo", required: true },
+      { key: "email", label: "E-mail", required: true, keyboardType: "email-address" },
+      { key: "phone", label: "Telefone", required: true, keyboardType: "phone-pad" },
+      { key: "password", label: "Palavra-passe inicial (mín. 12 caracteres)", required: true, secure: true, createOnly: true },
+      { key: "role", label: "Perfil", required: true, type: "select", options: [
+        { value: "FISCAL", label: "Fiscal" },
+        { value: "FINANCIAL_MANAGER", label: "Gestor Financeiro" },
+      ] },
+      { key: "marketId", label: "Mercado (obrigatório para fiscal)", type: "market" },
+    ],
+    heading: (item) => item.name,
+    lines: (item) => [
+      item.role === "FISCAL" ? "Fiscal" : "Gestor Financeiro",
+      `${item.email} · ${item.phone}`,
+      item.market || "Todos os mercados",
+      `Estado: ${item.status}`,
+    ],
+  },
   tickets: { title: "Recibos", icon: "ticket-confirmation-outline", endpoint: "/admin/tickets", fields: [] },
 };
 
@@ -211,7 +234,7 @@ export default function ResourceScreen({ route, navigate }) {
     setSaving(true);
     try {
       const payload = { ...form };
-      if ("marketId" in payload) payload.marketId = Number(payload.marketId);
+      if ("marketId" in payload) payload.marketId = payload.marketId ? Number(payload.marketId) : null;
       if ("stallId" in payload) payload.stallId = Number(payload.stallId);
       if (resourceKey === "rates") payload.amount = Number(payload.amount);
       if ("active" in payload) payload.active = payload.active === true || payload.active === "true";
@@ -236,7 +259,9 @@ export default function ResourceScreen({ route, navigate }) {
         const status = item.status === "Bloqueado" ? "Regular" : "Bloqueado";
         updated = await apiPatch(`/admin/merchants/${item.id}/status`, {
           status,
-          reason: status === "Bloqueado" ? "Bloqueio efectuado pela administração" : null,
+          reason: status === "Bloqueado"
+            ? "Bloqueio efectuado pela administração"
+            : "Regularização autorizada pela administração",
         });
       } else if (resourceKey === "rates") {
         const active = !item.active;
@@ -254,6 +279,29 @@ export default function ResourceScreen({ route, navigate }) {
     } catch (requestError) {
       setError(requestError.message);
     }
+  }
+
+  function deleteUser(item) {
+    Alert.alert(
+      "Eliminar utilizador",
+      `Tem a certeza de que pretende eliminar a conta de ${item.name}? Esta acção não pode ser desfeita.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            setError("");
+            try {
+              await api(`/admin/users/${item.id}`, { method: "DELETE" });
+              setItems((current) => current.filter((entry) => entry.id !== item.id));
+            } catch (requestError) {
+              setError(requestError.message);
+            }
+          },
+        },
+      ]
+    );
   }
 
   if (!config && resourceKey !== "stalls") return <View style={commonStyles.page}><Notice>Área móvel não encontrada.</Notice></View>;
@@ -419,7 +467,7 @@ export default function ResourceScreen({ route, navigate }) {
       />
       {error ? <Notice>{error}</Notice> : null}
       <Field label={`Pesquisar ${config.title.toLowerCase()}`} value={search} onChangeText={setSearch} placeholder="Pesquisar…" icon="magnify" />
-      {["merchants", "rates", "fiscals"].includes(resourceKey) ? (
+      {["merchants", "rates", "fiscals", "users"].includes(resourceKey) ? (
         <Field
           label="Mercado"
           value={marketFilter}
@@ -437,7 +485,8 @@ export default function ResourceScreen({ route, navigate }) {
             <Text key={index} style={index === 0 ? commonStyles.body : commonStyles.mutedText}>{line}</Text>
           ))}
           <View style={commonStyles.row}>
-            <Button title="Editar" icon="pencil-outline" compact variant="secondary" onPress={() => navigate({ resource: resourceKey, mode: "edit", id: item.id })} />
+            {resourceKey !== "users" ? <Button title="Editar" icon="pencil-outline" compact variant="secondary" onPress={() => navigate({ resource: resourceKey, mode: "edit", id: item.id })} /> : null}
+            {resourceKey === "users" ? <Button title="Eliminar" icon="delete-outline" compact variant="danger" onPress={() => deleteUser(item)} /> : null}
             {["merchants", "rates", "fiscals"].includes(resourceKey) ? (
               <Button
                 title={statusAction(resourceKey, item)}

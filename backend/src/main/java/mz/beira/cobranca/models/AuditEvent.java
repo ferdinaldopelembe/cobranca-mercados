@@ -25,7 +25,7 @@ public class AuditEvent {
     protected AuditEvent() {}
 
     public AuditEvent(Account actor, String action, String entity, String description, String ipAddress) {
-        this.occurredAt = LocalDateTime.now();
+        this.occurredAt = LocalDateTime.now(java.time.ZoneId.of("Africa/Maputo"));
         this.actorId = actor.getId();
         this.actorName = actor.getName();
         this.role = actor.getRole();
@@ -33,6 +33,15 @@ public class AuditEvent {
         this.entity = entity;
         this.description = description;
         this.ipAddress = ipAddress;
+    }
+
+    public AuditEvent(String actorName, String action, String entity, String description) {
+        this.occurredAt = LocalDateTime.now(java.time.ZoneId.of("Africa/Maputo"));
+        this.actorName = actorName;
+        this.role = "SYSTEM";
+        this.action = action;
+        this.entity = entity;
+        this.description = description;
     }
 
     public Long getId() { return id; }

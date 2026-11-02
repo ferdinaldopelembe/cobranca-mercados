@@ -29,6 +29,7 @@ import mz.beira.cobranca.repositories.AppSettingRepository;
 import mz.beira.cobranca.repositories.AuditEventRepository;
 import mz.beira.cobranca.repositories.FiscalRepository;
 import mz.beira.cobranca.repositories.MarketRepository;
+import mz.beira.cobranca.repositories.NotificationRepository;
 import mz.beira.cobranca.repositories.PaymentRepository;
 import mz.beira.cobranca.repositories.RateRepository;
 import mz.beira.cobranca.repositories.StallRepository;
@@ -52,6 +53,7 @@ public class AdminService {
     private final PaymentRepository payments;
     private final FiscalRepository fiscals;
     private final AuditEventRepository auditEvents;
+    private final NotificationRepository notifications;
     private final AppSettingRepository settings;
     private final PasswordEncoder passwordEncoder;
     private final CatalogService catalog;
@@ -66,6 +68,7 @@ public class AdminService {
         PaymentRepository payments,
         FiscalRepository fiscals,
         AuditEventRepository auditEvents,
+        NotificationRepository notifications,
         AppSettingRepository settings,
         PasswordEncoder passwordEncoder,
         CatalogService catalog,
@@ -79,6 +82,7 @@ public class AdminService {
         this.payments = payments;
         this.fiscals = fiscals;
         this.auditEvents = auditEvents;
+        this.notifications = notifications;
         this.settings = settings;
         this.passwordEncoder = passwordEncoder;
         this.catalog = catalog;
@@ -86,9 +90,32 @@ public class AdminService {
         this.objectMapper = objectMapper;
     }
 
+    private void validateTicketValidity(Map<String, Object> billing) {
+        if (billing == null || billing.get("validadeSenhaHoras") == null) return;
+        Object configured = billing.get("validadeSenhaHoras");
+        long hours;
+        try {
+            hours = configured instanceof Number number
+                ? number.longValue()
+                : Long.parseLong(configured.toString());
+        } catch (NumberFormatException exception) {
+            throw badRequest("A validade das senhas deve ser um número inteiro.");
+        }
+        if (hours < 1 || hours > 720) {
+            throw badRequest("A validade das senhas deve estar entre 1 e 720 horas.");
+        }
+    }
+
     @Transactional(readOnly = true)
     public List<MarketResponse> markets() {
         return catalog.getAdminMarkets();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MarketResponse> markets(Long marketId) {
+        return catalog.getAdminMarkets().stream()
+            .filter(market -> marketId == null || marketId.equals(market.id()))
+            .toList();
     }
 
     @Transactional
@@ -179,13 +206,21 @@ public class AdminService {
         if (!List.of("Regular", "Bloqueado").contains(input.status())) {
             throw badRequest("Estado do comerciante inválido.");
         }
-        String reason = "Bloqueado".equals(input.status()) ? clean(input.reason()) : null;
-        if ("Bloqueado".equals(input.status()) && reason == null) {
-            reason = "Bloqueio efectuado pela administração";
+        String reason = clean(input.reason());
+        if (reason == null) {
+            reason = "Bloqueado".equals(input.status())
+                ? "Bloqueio efectuado pela administração"
+                : "Regularização autorizada pela administração";
         }
         account.setStatus(input.status(), reason);
-        audit(actor, "Bloqueio".equals(input.status()) ? "Bloqueio" : "Edição",
-            "Comerciante", "Actualizou o estado de " + account.getName() + " para " + input.status() + ".", ip);
+        audit(
+            actor,
+            "Bloqueado".equals(input.status()) ? "Bloqueio" : "Regularização",
+            "Comerciante",
+            "Actualizou o estado de " + account.getName() + " para " + input.status()
+                + ". Motivo: " + reason + ".",
+            ip
+        );
         return merchantResponse(accounts.save(account));
     }
 
@@ -239,6 +274,69 @@ public class AdminService {
     @Transactional(readOnly = true)
     public List<AdminDtos.FiscalResponse> fiscals() {
         return fiscals.findAllByOrderByNameAsc().stream().map(this::fiscalResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminDtos.StaffResponse> staffUsers() {
+        return accounts.findAll().stream()
+            .filter(account -> List.of("FISCAL", "FINANCIAL_MANAGER").contains(account.getRole()))
+            .sorted(Comparator.comparing(Account::getName, String.CASE_INSENSITIVE_ORDER))
+            .map(this::staffResponse)
+            .toList();
+    }
+
+    @Transactional
+    public AdminDtos.StaffResponse createStaff(
+        AdminDtos.StaffInput input, Account actor, String ip
+    ) {
+        String role = input.role().trim();
+        if (!List.of("FISCAL", "FINANCIAL_MANAGER").contains(role)) {
+            throw badRequest("O perfil de equipa seleccionado não é permitido.");
+        }
+        String email = normalizeEmail(input.email());
+        String phone = input.phone().trim();
+        if (accounts.existsByEmailIgnoreCase(email) || accounts.existsByPhone(phone)) {
+            throw conflict("O e-mail ou telefone já está associado a uma conta.");
+        }
+        Market market = null;
+        if (input.marketId() != null) {
+            market = market(input.marketId());
+            if (!market.isActive()) throw badRequest("O mercado seleccionado está inactivo.");
+        }
+        if ("FISCAL".equals(role) && market == null) {
+            throw badRequest("Associe o fiscal a um mercado.");
+        }
+        Account account = accounts.save(new Account(
+            input.name().trim(), email, phone, passwordEncoder.encode(input.password()),
+            role, market, null, null
+        ));
+        audit(actor, "Criação", "Utilizador", "Criou a conta de " + role + " para " + account.getName() + ".", ip);
+        return staffResponse(account);
+    }
+
+    @Transactional
+    public void deleteStaff(Long id, Account actor, String ip) {
+        Account account = accounts.findById(id)
+            .orElseThrow(() -> notFound("Utilizador de equipa não encontrado."));
+        if (!List.of("FISCAL", "FINANCIAL_MANAGER").contains(account.getRole())) {
+            throw badRequest("Só é possível eliminar fiscais ou gestores financeiros.");
+        }
+        if (payments.existsByCashierId(id) || payments.existsByConfirmedById(id)) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Não é possível eliminar este utilizador porque está associado ao histórico de pagamentos."
+            );
+        }
+
+        audit(
+            actor,
+            "Eliminação",
+            "Utilizador",
+            "Eliminou a conta de " + account.getRole() + " de " + account.getName() + ".",
+            ip
+        );
+        notifications.deleteAllByAccountId(id);
+        accounts.delete(account);
     }
 
     @Transactional
@@ -321,13 +419,15 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public List<AdminDtos.TicketResponse> tickets() {
-        return payments.findAllByOrderByPaidAtDesc().stream().map(payment ->
+        return payments.findAllByOrderByIdDesc().stream()
+            .filter(payment -> "Pago".equals(payment.getStatus()))
+            .map(payment ->
             new AdminDtos.TicketResponse(
                 payment.getPaymentReference(), payment.getId(), payment.getAccount().getName(),
                 payment.getAccount().getNuit(), payment.getMarket().getName(),
                 payment.getStall().getCode(), payment.getPeriodicity(), payment.getAmount(),
                 payment.getPeriodStart(), payment.getPeriodEnd(), payment.getPaidAt(),
-                "Paga", payment.getMethod()
+                payment.getStatus(), payment.getMethod()
             )
         ).toList();
     }
@@ -346,6 +446,7 @@ public class AdminService {
     public AdminDtos.SettingsResponse saveSettings(
         AdminDtos.SettingsInput input, Account actor, String ip
     ) {
+        validateTicketValidity(input.cobranca());
         saveSetting("geral", input.geral());
         saveSetting("cobranca", input.cobranca());
         saveSetting("notificacoes", input.notificacoes());
@@ -366,19 +467,28 @@ public class AdminService {
         return auditEvents.findAllByOrderByOccurredAtDesc().stream()
             .map(event -> new AdminDtos.AuditResponse(
                 event.getId(), event.getOccurredAt(), event.getActorId(), event.getActorName(),
-                "ADMIN".equals(event.getRole()) ? "Administrador" : "Comerciante",
+                switch (event.getRole()) {
+                    case "ADMIN" -> "Administrador";
+                    case "FISCAL" -> "Fiscal";
+                    case "FINANCIAL_MANAGER" -> "Gestor Financeiro";
+                    case "SYSTEM" -> "Sistema";
+                    default -> "Comerciante";
+                },
                 event.getAction(), event.getEntity(), event.getDescription(), event.getIpAddress()
             )).toList();
     }
 
     @Transactional
     public PaymentResponse recordPayment(Long merchantId, String method, Account actor, String ip) {
+        if (!"Numerário".equals(method)) {
+            throw badRequest("As carteiras móveis devem ser simuladas pelo próprio comerciante.");
+        }
         Account merchant = merchant(merchantId);
         PaymentResponse result = paymentService.makePayment(
             merchant, new mz.beira.cobranca.dto.PaymentRequest(method)
         );
-        audit(actor, "Cobrança", "Pagamento",
-            "Registou o pagamento " + result.paymentReference() + " de " + merchant.getName() + ".", ip);
+        audit(actor, "Emissão", "Senha",
+            "Emitiu a senha " + result.paymentReference() + " para " + merchant.getName() + ".", ip);
         return result;
     }
 
@@ -428,6 +538,14 @@ public class AdminService {
             fiscal.getEmail(), fiscal.getMarket().getId(), fiscal.getMarket().getName(),
             fiscal.getZone(), fiscal.getShift(), fiscal.isActive() ? "Activo" : "Inactivo",
             fiscal.getStatusReason()
+        );
+    }
+
+    private AdminDtos.StaffResponse staffResponse(Account account) {
+        return new AdminDtos.StaffResponse(
+            account.getId(), account.getName(), account.getEmail(), account.getPhone(),
+            account.getRole(), account.getMarket() == null ? null : account.getMarket().getId(),
+            account.getMarket() == null ? null : account.getMarket().getName(), account.getStatus()
         );
     }
 
@@ -514,8 +632,10 @@ public class AdminService {
         LocalDateTime start = from.atStartOfDay();
         LocalDateTime end = to.plusDays(1).atStartOfDay();
         List<Payment> result = payments.findAllByPaidAtGreaterThanEqualAndPaidAtLessThanOrderByPaidAtDesc(start, end);
-        return marketId == null ? result
-            : result.stream().filter(p -> marketId.equals(p.getMarket().getId())).toList();
+        return result.stream()
+            .filter(payment -> "Pago".equals(payment.getStatus()))
+            .filter(payment -> marketId == null || marketId.equals(payment.getMarket().getId()))
+            .toList();
     }
 
     private BigDecimal sumPayments(List<Payment> payments) {
@@ -588,7 +708,7 @@ public class AdminService {
             "moeda", "MZN", "ivaAtivo", false, "ivaPercentagem", 16,
             "diasParaBloqueio", 3, "arredondamento", "Nenhum",
             "numeracaoSenha", "Automática", "emitirReciboAutomatico", true,
-            "limiteSenhasPorOperador", 200
+            "limiteSenhasPorOperador", 200, "validadeSenhaHoras", 48
         );
     }
 

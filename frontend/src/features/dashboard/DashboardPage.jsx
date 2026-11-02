@@ -67,6 +67,7 @@ export default function DashboardPage() {
     valor: Number(item.revenue),
   }));
   const recentMerchants = data?.recentMerchants || [];
+  const hasDemoMerchants = recentMerchants.some((merchant) => merchant.name.startsWith("[DEMO]"));
   const selectedMarket = markets.find((item) => item.id === Number(marketId));
 
   return (
@@ -79,6 +80,11 @@ export default function DashboardPage() {
         </div>
       </div>
       {error && <p role="alert" className="rounded-lg border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">{error}</p>}
+      {hasDemoMerchants && (
+        <p role="status" className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Dados de demonstração: comerciantes e senhas fictícios, sem pagamentos confirmados nem receita real.
+        </p>
+      )}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi icon={<TrendingUp size={18} />} label="Receita total" value={formatMT(Number(data?.revenue || 0))} hint={trend == null ? "Sem dados no período anterior" : `${trend >= 0 ? "+" : ""}${trend}% vs. período anterior`} accent="primary" />
         <Kpi icon={<Receipt size={18} />} label="Pagamentos" value={Number(data?.transactions || 0).toLocaleString("pt-MZ")} hint="Pagamentos confirmados" accent="info" />

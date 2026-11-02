@@ -4,6 +4,7 @@ Credencias de teste:
 # rodar backend
 set "COBRANCA_ADMIN_EMAIL=admin@gmail.com"
 set "COBRANCA_ADMIN_PASSWORD=SUBSTITUA_POR_UMA_SENHA_FORTE_COM_12_OU_MAIS_CARACTERES"
+
 cd backend
 mvnw.cmd spring-boot:run
 

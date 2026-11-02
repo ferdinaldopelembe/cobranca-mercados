@@ -36,17 +36,25 @@ const adminNavigation = [
   { key: "rates", label: "Taxas", icon: "receipt-text-outline" },
   { key: "tickets", label: "Recibos", icon: "ticket-confirmation-outline" },
   { key: "payments", label: "Pagamentos", icon: "cash-multiple" },
+  { key: "notifications", label: "Notificações", icon: "bell-outline" },
   { key: "fiscals", label: "Fiscais", icon: "shield-account-outline" },
   { key: "reports", label: "Relatórios", icon: "chart-box-outline" },
   { key: "audit", label: "Auditoria", icon: "history" },
   { key: "settings", label: "Configurações", icon: "cog-outline" },
+  { key: "users", label: "Utilizadores", icon: "account-key-outline" },
 ];
 
 const merchantNavigation = [
   { key: "payments", label: "Pagamentos", icon: "cash-multiple" },
+  { key: "notifications", label: "Notificações", icon: "bell-outline" },
 ];
 
-const resourceKeys = new Set(["markets", "merchants", "rates", "fiscals", "tickets"]);
+const financialNavigation = [
+  ...merchantNavigation,
+  { key: "reports", label: "Relatórios", icon: "chart-box-outline" },
+];
+
+const resourceKeys = new Set(["markets", "merchants", "rates", "fiscals", "tickets", "users"]);
 
 export default function App() {
   const params = useLocalSearchParams();
@@ -69,7 +77,9 @@ export default function App() {
     try {
       const account = await api("/auth/me");
       setUser(account);
-      if (account.role !== "ADMIN" && route.key !== "payments") {
+      if (account.role !== "ADMIN"
+        && !["payments", "notifications"].includes(route.key)
+        && !(account.role === "FINANCIAL_MANAGER" && route.key === "reports")) {
         router.replace("/workspace/payments");
       }
     } catch (error) {
@@ -88,8 +98,12 @@ export default function App() {
 
   const isAdmin = user?.role === "ADMIN";
   const navigation = useMemo(
-    () => isAdmin ? adminNavigation : merchantNavigation,
-    [isAdmin]
+    () => isAdmin
+      ? adminNavigation
+      : user?.role === "FINANCIAL_MANAGER"
+        ? financialNavigation
+        : merchantNavigation,
+    [isAdmin, user?.role]
   );
   const routeTitle = getRouteTitle(route);
   const showBack = Boolean(route.mode && route.mode !== "list");
@@ -200,7 +214,7 @@ export default function App() {
           <View style={{ flex: 1 }}>
             <Text numberOfLines={1} style={styles.topbarTitle}>{routeTitle}</Text>
             <Text numberOfLines={1} style={styles.topbarSubtitle}>
-              {user.name} · {isAdmin ? "Administrador" : "Comerciante"}
+              {user.name} · {roleLabel(user.role)}
             </Text>
           </View>
           <Pressable
@@ -261,7 +275,7 @@ export default function App() {
                 </View>
                 <View>
                   <Text style={styles.drawerUser}>{user.name}</Text>
-                  <Text style={styles.drawerRole}>{isAdmin ? "Administrador" : "Comerciante"}</Text>
+                  <Text style={styles.drawerRole}>{roleLabel(user.role)}</Text>
                 </View>
               </View>
             </View>
@@ -309,7 +323,7 @@ function renderScreen(route, props) {
       />
     );
   }
-  if (route.key === "reports" || route.key === "audit" || route.key === "settings") {
+  if (route.key === "reports" || route.key === "audit" || route.key === "settings" || route.key === "notifications") {
     return <InsightsScreen key={`${route.key}-${props.refreshKey}`} screen={route.key} navigate={props.navigate} />;
   }
   const resource = route.resource || (resourceKeys.has(route.key) ? route.key : null);
@@ -331,7 +345,16 @@ function getRouteTitle(route) {
   if (route.resource && route.mode === "edit") return "Editar registo";
   if (route.resource && route.mode === "detail") return "Detalhe do mercado";
   if (route.key === "payments" && route.mode === "new") return "Registar pagamento";
-  return adminNavigation.find((item) => item.key === route.key)?.label || "Cobrança Beira";
+  return [...adminNavigation, ...merchantNavigation].find((item) => item.key === route.key)?.label || "Cobrança Beira";
+}
+
+function roleLabel(role) {
+  return ({
+    ADMIN: "Administrador",
+    MERCHANT: "Comerciante",
+    FISCAL: "Fiscal",
+    FINANCIAL_MANAGER: "Gestor Financeiro",
+  })[role] || "Utilizador";
 }
 
 function safeApiUrl() {

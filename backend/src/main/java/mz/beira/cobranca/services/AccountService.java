@@ -90,7 +90,7 @@ public class AccountService {
         if (!passwordEncoder.matches(request.password(), account.getPasswordHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas.");
         }
-        if ("Bloqueado".equals(account.getStatus())) {
+        if ("Bloqueado".equals(account.getStatus()) && !"MERCHANT".equals(account.getRole())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "A conta está bloqueada. Contacte a administração.");
         }
         return account;

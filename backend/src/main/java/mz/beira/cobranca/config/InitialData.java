@@ -11,6 +11,7 @@ import mz.beira.cobranca.repositories.MarketRepository;
 import mz.beira.cobranca.repositories.RateRepository;
 import mz.beira.cobranca.repositories.StallRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +40,7 @@ public class InitialData {
     );
 
     @Bean
+    @Order(0)
     CommandLineRunner seedInitialData(
         MarketRepository markets,
         StallRepository stalls,

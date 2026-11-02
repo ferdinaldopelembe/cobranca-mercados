@@ -6,6 +6,9 @@ target/
 ## data/*.mv.db
 ## data/*.trace.db
 ## data/*.lock.db
+data/cobranca-demo.mv.db
+data/cobranca-demo.trace.db
+data/cobranca-demo.lock.db
 
 ### STS ###
 .apt_generated

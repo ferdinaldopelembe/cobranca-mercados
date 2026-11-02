@@ -1,19 +1,27 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AuthContext from "./auth-context";
 import { api, apiPost } from "../lib/api";
 
 function mapAccount(account) {
+  const roleLabels = {
+    ADMIN: "Administrador",
+    MERCHANT: "Comerciante",
+    FISCAL: "Fiscal",
+    FINANCIAL_MANAGER: "Gestor Financeiro",
+  };
   return {
     id: account.id,
     name: account.name,
     email: account.email,
     phone: account.phone,
-    role: account.role === "ADMIN" ? "Administrador" : "Usuário",
+    role: roleLabels[account.role] || "Usuário",
     marketId: account.marketId,
     mercado: account.market,
     stallId: account.stallId,
     banca: account.stall,
     produto: account.product,
+    status: account.status,
+    statusReason: account.statusReason,
   };
 }
 
@@ -77,6 +85,13 @@ export function AuthProvider({ children }) {
     return updatedUser;
   }
 
+  const refreshUser = useCallback(async () => {
+    const account = await api("/auth/me");
+    const refreshedUser = mapAccount(account);
+    setUser(refreshedUser);
+    return refreshedUser;
+  }, []);
+
   async function logout() {
     try {
       await apiPost("/auth/logout", {});
@@ -87,7 +102,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, updateUserProfile, logout }}
+      value={{ user, loading, login, register, updateUserProfile, refreshUser, logout }}
     >
       {children}
     </AuthContext.Provider>

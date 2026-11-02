@@ -21,7 +21,7 @@ public class SessionAccountService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Inicie sessão para continuar.");
         }
         Account account = accounts.findById(id);
-        if ("Bloqueado".equals(account.getStatus())) {
+        if ("Bloqueado".equals(account.getStatus()) && !"MERCHANT".equals(account.getRole())) {
             session.invalidate();
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "A conta está bloqueada. Contacte a administração.");
         }

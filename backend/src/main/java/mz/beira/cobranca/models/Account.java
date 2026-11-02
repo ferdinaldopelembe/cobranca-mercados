@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.Locale;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "accounts", uniqueConstraints = {
@@ -38,6 +39,7 @@ public class Account {
     private String nuit;
     private String status = "Regular";
     private String statusReason;
+    private LocalDateTime statusUpdatedAt;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     protected Account() {}
@@ -72,6 +74,7 @@ public class Account {
     public String getNuit() { return nuit; }
     public String getStatus() { return status; }
     public String getStatusReason() { return statusReason; }
+    public LocalDateTime getStatusUpdatedAt() { return statusUpdatedAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
     public void associateBusiness(Market market, Stall stall, String product) {
@@ -92,6 +95,7 @@ public class Account {
     public void setStatus(String status, String reason) {
         this.status = status;
         this.statusReason = reason;
+        this.statusUpdatedAt = LocalDateTime.now(ZoneId.of("Africa/Maputo"));
     }
 
     public void setNuit(String nuit) {

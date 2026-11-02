@@ -22,15 +22,24 @@ import NovaTaxaPage from "./features/taxas/NovaTaxaPage";
 import EmitirSenhaPage from "./features/senhas/EmitirSenhaPage";
 import AuditoriaPage from "./features/auditoria/AuditoriaPage";
 import ConfiguracoesPage from "./features/configuracoes/ConfiguracoesPage";
+import StaffUsersPage from "./features/configuracoes/StaffUsersPage";
+import MerchantDashboardPage from "./features/dashboard/MerchantDashboardPage";
 
 function HomeRedirect() {
   const { user } = useAuth();
   return (
     <Navigate
-      to={user?.role === "Administrador" ? "/dashboard" : "/pagamentos"}
+      to={["Administrador", "Comerciante"].includes(user?.role) ? "/dashboard" : "/pagamentos"}
       replace
     />
   );
+}
+
+function RoleDashboardPage() {
+  const { user } = useAuth();
+  if (user?.role === "Administrador") return <DashboardPage />;
+  if (user?.role === "Comerciante") return <MerchantDashboardPage />;
+  return <Navigate to="/pagamentos" replace />;
 }
 
 export default function App() {
@@ -45,11 +54,11 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<HomeRedirect />} />
+                <Route path="/dashboard" element={<RoleDashboardPage />} />
                 <Route path="/pagamentos" element={<PagamentosPage />} />
                 <Route path="/pagamentos/novo" element={<RegistarPagamentoPage />} />
 
                 <Route element={<ProtectedRoute allowedRoles={["Administrador"]} />}>
-                  <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/mercados" element={<MercadosPage />} />
                   <Route path="/mercados/:id" element={<MercadoDetailPage />} />
                   <Route path="/comerciantes" element={<ComerciantesPage />} />
@@ -61,9 +70,12 @@ export default function App() {
                   <Route path="/senhas/:id" element={<Navigate to="/senhas" replace />} />
                   <Route path="/fiscais" element={<FiscaisPage />} />
                   <Route path="/fiscais/novo" element={<NovoFiscalPage />} />
-                  <Route path="/relatorios" element={<RelatoriosPage />} />
                   <Route path="/auditoria" element={<AuditoriaPage />} />
                   <Route path="/configuracoes" element={<ConfiguracoesPage />} />
+                  <Route path="/utilizadores" element={<StaffUsersPage />} />
+                </Route>
+                <Route element={<ProtectedRoute allowedRoles={["Administrador", "Gestor Financeiro"]} />}>
+                  <Route path="/relatorios" element={<RelatoriosPage />} />
                 </Route>
               </Route>
             </Route>

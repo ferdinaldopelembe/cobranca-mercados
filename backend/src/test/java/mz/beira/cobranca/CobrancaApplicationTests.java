@@ -7,11 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 import mz.beira.cobranca.models.Account;
 import mz.beira.cobranca.repositories.AccountRepository;
+import mz.beira.cobranca.config.PaymentPeriodConstraintMigration;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootTest(properties = {
 	"spring.datasource.url=jdbc:h2:mem:cobranca-context-test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
@@ -19,9 +22,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 })
 class CobrancaApplicationTests {
 	@Autowired private AccountRepository accounts;
+	@Autowired private JdbcTemplate jdbc;
 	@Autowired
 	@Qualifier("seedInitialData")
 	private CommandLineRunner seedInitialData;
+	@Autowired private PaymentPeriodConstraintMigration paymentPeriodConstraintMigration;
 
 	@Test
 	void contextLoads() {
@@ -60,6 +65,27 @@ class CobrancaApplicationTests {
 		Account recreatedAdmin = accounts.findByEmailIgnoreCase(admin.getEmail()).orElseThrow();
 		assertNotNull(recreatedAdmin.getPasswordHash());
 		assertNull(recreatedAdmin.getPhone());
+	}
+
+	@Test
+	void removesLegacyDuplicatePeriodConstraintWithoutDeletingPayments() {
+		long paymentCount = jdbc.queryForObject("SELECT COUNT(*) FROM PAYMENTS", Long.class);
+		jdbc.execute(
+			"ALTER TABLE PAYMENTS ADD CONSTRAINT TEST_LEGACY_PAYMENT_PERIOD "
+				+ "UNIQUE (ACCOUNT_ID, PERIOD_START, PERIOD_END)"
+		);
+
+		paymentPeriodConstraintMigration.run(new DefaultApplicationArguments(new String[0]));
+
+		Integer remainingConstraints = jdbc.queryForObject("""
+			SELECT COUNT(*)
+			FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+			WHERE CONSTRAINT_SCHEMA = CURRENT_SCHEMA()
+			  AND TABLE_NAME = 'PAYMENTS'
+			  AND CONSTRAINT_NAME = 'TEST_LEGACY_PAYMENT_PERIOD'
+			""", Integer.class);
+		assertEquals(0, remainingConstraints);
+		assertEquals(paymentCount, jdbc.queryForObject("SELECT COUNT(*) FROM PAYMENTS", Long.class));
 	}
 
 }

@@ -31,6 +31,14 @@ export default function ConfiguracoesPage() {
     setSaved(false);
   }
 
+  function updateBilling(field, value) {
+    setSettings((current) => ({
+      ...current,
+      cobranca: { ...current.cobranca, [field]: value },
+    }));
+    setSaved(false);
+  }
+
   async function save() {
     setSaving(true);
     setError("");
@@ -92,12 +100,28 @@ export default function ConfiguracoesPage() {
       </Card>
 
       <Card className="space-y-4 p-6">
+        <div><h2 className="text-base font-semibold">Regras de emissão</h2><p className="text-sm text-text-muted">A validade é calculada e aplicada pelo backend.</p></div>
+        <Field label="Validade de senhas não pagas (horas)">
+          <input
+            type="number"
+            min="1"
+            max="720"
+            step="1"
+            value={settings.cobranca.validadeSenhaHoras ?? 48}
+            onChange={(event) => updateBilling("validadeSenhaHoras", Number(event.target.value))}
+            className={inputClass}
+          />
+        </Field>
+      </Card>
+
+      <Card className="space-y-4 p-6">
         <h2 className="flex items-center gap-2 text-base font-semibold"><ShieldCheck size={18} /> Regras aplicadas pela API</h2>
         <ul className="list-inside list-disc space-y-2 text-sm text-text-muted">
-          <li>Perfis de administrador e comerciante são verificados no backend.</li>
+          <li>Perfis de administrador, comerciante, fiscal e gestor financeiro são verificados no backend.</li>
           <li>Os valores, períodos e referências de pagamento são calculados pelo servidor.</li>
+          <li>Recebimentos em numerário só entram na receita após confirmação financeira.</li>
           <li>As sessões expiram após 30 minutos de inactividade; use HTTPS fora do ambiente local.</li>
-          <li>Notificações por e-mail/SMS e autenticação de dois factores não estão configuradas.</li>
+          <li>As notificações por SMS e autenticação de dois factores não estão configuradas.</li>
         </ul>
       </Card>
     </div>

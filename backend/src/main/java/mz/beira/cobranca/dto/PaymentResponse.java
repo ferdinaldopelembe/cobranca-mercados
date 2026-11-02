@@ -23,7 +23,15 @@ public record PaymentResponse(
     BigDecimal amount,
     String method,
     String status,
-    LocalDateTime paidAt
+    LocalDateTime issuedAt,
+    LocalDateTime paidAt,
+    LocalDateTime expiresAt,
+    String cashier,
+    LocalDateTime cashReceivedAt,
+    String confirmedBy,
+    LocalDateTime confirmedAt,
+    String rejectionReason,
+    String walletPhone
 ) {
     public static PaymentResponse from(Payment payment) {
         return new PaymentResponse(
@@ -44,7 +52,15 @@ public record PaymentResponse(
             payment.getAmount(),
             payment.getMethod(),
             payment.getStatus(),
-            payment.getPaidAt()
+            payment.getIssuedAt(),
+            payment.getPaidAt(),
+            payment.getExpiresAt(),
+            payment.getCashier() == null ? null : payment.getCashier().getName(),
+            payment.getCashReceivedAt(),
+            payment.getConfirmedBy() == null ? null : payment.getConfirmedBy().getName(),
+            payment.getConfirmedAt(),
+            payment.getRejectionReason(),
+            payment.getWalletPhone()
         );
     }
 }

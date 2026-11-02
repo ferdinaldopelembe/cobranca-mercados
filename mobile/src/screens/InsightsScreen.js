@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Alert, Text, View } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
-import { api, apiPost, apiPut } from "../api";
+import { api, apiPatch, apiPost, apiPut } from "../api";
 import { Button, Card, Field, Icon, Loading, Notice, colors, commonStyles } from "../components";
+import { shareFile as shareLocalFile } from "../utils/shareFile";
 
 const money = (value) =>
   `${Number(value || 0).toLocaleString("pt-MZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MT`;
@@ -12,7 +12,57 @@ const money = (value) =>
 export default function InsightsScreen({ screen, navigate }) {
   if (screen === "reports") return <ReportsScreen />;
   if (screen === "audit") return <AuditScreen />;
+  if (screen === "notifications") return <NotificationsScreen />;
   return <SettingsScreen />;
+}
+
+function NotificationsScreen() {
+  const [items, setItems] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setError("");
+    try {
+      setItems(await api("/notifications"));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    Promise.resolve().then(load);
+  }, [load]);
+
+  async function markRead(item) {
+    setError("");
+    try {
+      const updated = await apiPatch(`/notifications/${item.id}/read`, {});
+      setItems((current) => current.map((notification) => notification.id === updated.id ? updated : notification));
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
+  if (loading) return <Loading label="A carregar notificações…" />;
+  return (
+    <View style={commonStyles.page}>
+      <Text style={commonStyles.title}>Notificações</Text>
+      <Text style={commonStyles.subtitle}>Avisos internos do sistema, guardados na sua conta.</Text>
+      {error ? <Notice>{error}</Notice> : null}
+      {items.map((item) => (
+        <Card key={item.id}>
+          <Text style={commonStyles.sectionTitle}>{item.title}</Text>
+          <Text style={commonStyles.body}>{item.message}</Text>
+          <Text style={commonStyles.mutedText}>{new Date(item.createdAt).toLocaleString("pt-MZ")}</Text>
+          {!item.readAt ? <Button title="Marcar como lida" icon="check" compact variant="secondary" onPress={() => markRead(item)} /> : <Text style={commonStyles.mutedText}>Lida</Text>}
+        </Card>
+      ))}
+      {!items.length ? <Card><Text style={commonStyles.mutedText}>Sem notificações.</Text></Card> : null}
+    </View>
+  );
 }
 
 function ReportsScreen() {
@@ -97,11 +147,7 @@ function ReportsScreen() {
   }
 
   async function shareFile(uri, mimeType, dialogTitle) {
-    if (!(await Sharing.isAvailableAsync())) {
-      Alert.alert("Partilha indisponível", "Este dispositivo não permite partilhar ficheiros.");
-      return;
-    }
-    await Sharing.shareAsync(uri, { mimeType, dialogTitle });
+    await shareLocalFile(uri, mimeType, dialogTitle);
   }
 
   return (

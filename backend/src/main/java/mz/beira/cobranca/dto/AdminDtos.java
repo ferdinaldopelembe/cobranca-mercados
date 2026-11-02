@@ -83,6 +83,20 @@ public final class AdminDtos {
         String status, String statusReason
     ) {}
 
+    public record StaffInput(
+        @NotBlank @Size(max = 120) String name,
+        @NotBlank @Email @Size(max = 254) String email,
+        @NotBlank @Size(max = 32) String phone,
+        @NotBlank @Size(min = 12, max = 72) String password,
+        @NotBlank String role,
+        Long marketId
+    ) {}
+
+    public record StaffResponse(
+        Long id, String name, String email, String phone, String role,
+        Long marketId, String market, String status
+    ) {}
+
     public record AuditResponse(
         Long id, LocalDateTime data, Long userId, String utilizador, String perfil,
         String accao, String entidade, String descricao, String ip
